@@ -3,14 +3,15 @@ import { getFirestore, doc, onSnapshot, setDoc } from "firebase/firestore";
 
 // User's Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAa8k3erl4tcr2lvJVwAoIFrn-CKr4ws2I",
-  authDomain: "jr-cashflow-a4a0b.firebaseapp.com",
-  projectId: "jr-cashflow-a4a0b",
-  storageBucket: "jr-cashflow-a4a0b.firebasestorage.app",
-  messagingSenderId: "60258206517",
-  appId: "1:60258206517:web:46300bbcaefa1c9b17027c",
-  measurementId: "G-6TJDB1CGG7"
+  apiKey: "AIzaSyAB9sOKfFRIhx2E0YTK08PN-umDqGebbu0",
+  authDomain: "jb-group-6af90.firebaseapp.com",
+  projectId: "jb-group-6af90",
+  storageBucket: "jb-group-6af90.firebasestorage.app",
+  messagingSenderId: "753677921479",
+  appId: "1:753677921479:web:dce97fbc885687d8a4a2e2",
+  measurementId: "G-MJ2WQQMPT5"
 };
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
