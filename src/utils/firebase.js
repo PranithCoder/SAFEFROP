@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 export const firestore = getFirestore(app);
 
 const DB_KEY = 'safedrop_tank_cleaners_db';
-const docRef = doc(firestore, "settings", "db");
+const docRef = doc(firestore, "safedrop", "db");
 
 let isWriting = false;
 

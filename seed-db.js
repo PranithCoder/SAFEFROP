@@ -29,7 +29,7 @@ const defaultDatabase = {
 console.log("Connecting to Firebase...");
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
-const docRef = doc(firestore, "settings", "db");
+const docRef = doc(firestore, "safedrop", "db");
 
 async function seed() {
   try {
