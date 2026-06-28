@@ -15,7 +15,6 @@ const firebaseConfig = {
 
 
 // Initialize Firebase
-console.log("Firebase API Key in use:", firebaseConfig.apiKey);
 const app = initializeApp(firebaseConfig);
 export const firestore = getFirestore(app);
 export const auth = getAuth(app);
