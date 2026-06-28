@@ -128,11 +128,19 @@ export const getDB = () => {
 };
 
 export const saveDB = (data) => {
+  const oldDataStr = localStorage.getItem(DB_KEY);
+  let oldData = null;
+  try {
+    oldData = oldDataStr ? JSON.parse(oldDataStr) : null;
+  } catch (e) {
+    console.error("Error parsing old database during save:", e);
+  }
+  
   localStorage.setItem(DB_KEY, JSON.stringify(data));
   // Dispatch custom event to notify listeners (useful for components to auto-refresh)
   window.dispatchEvent(new Event('db-update'));
   // Sync changes to Firebase Firestore
-  saveDBToFirebase(data);
+  saveDBToFirebase(data, oldData);
 };
 
 // Help calculate dashboard stats

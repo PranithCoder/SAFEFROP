@@ -1,15 +1,37 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, collection, setDoc, deleteDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import fs from 'fs';
+import path from 'path';
+
+// Parse .env manually at runtime to avoid hardcoding secrets
+try {
+  const envPath = path.resolve(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    envContent.split(/\r?\n/).forEach(line => {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        let val = match[2] || '';
+        if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+        if (val.startsWith("'") && val.endsWith("'")) val = val.slice(1, -1);
+        process.env[key] = val;
+      }
+    });
+  }
+} catch (e) {
+  console.error("Error loading env file:", e);
+}
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCEm7q6HoCRWu9mhqTewXfhYEe5ungbCWs",
-  authDomain: "safe-drop-a2693.firebaseapp.com",
-  projectId: "safe-drop-a2693",
-  storageBucket: "safe-drop-a2693.firebasestorage.app",
-  messagingSenderId: "869723417230",
-  appId: "1:869723417230:web:8f9d5fe9136fe3e3ec77df",
-  measurementId: "G-ELR6ZH2QBR"
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.VITE_FIREBASE_APP_ID,
+  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 
@@ -29,12 +51,27 @@ const defaultDatabase = {
 console.log("Connecting to Firebase...");
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
-const docRef = doc(firestore, "safedrop", "db");
 
 async function seed() {
   try {
+    console.log("Cleaning up legacy monolithic safedrop/db document...");
+    const oldDocRef = doc(firestore, "safedrop", "db");
+    try {
+      await deleteDoc(oldDocRef);
+      console.log("Legacy monolithic document successfully deleted!");
+    } catch (delErr) {
+      console.log("Legacy document did not exist or could not be deleted, proceeding to seed...");
+    }
+
     console.log("Seeding fresh database with clean admin users in Firestore...");
-    await setDoc(docRef, defaultDatabase);
+    const collections = ['users', 'customers', 'jobs', 'inventory', 'leads', 'invoices', 'auditLogs'];
+    for (const colName of collections) {
+      console.log(`Seeding collection: ${colName}...`);
+      const list = defaultDatabase[colName] || [];
+      for (const item of list) {
+        await setDoc(doc(firestore, colName, item.id), item);
+      }
+    }
     console.log("Database successfully seeded in Firestore!");
 
     // Seed Auth profiles

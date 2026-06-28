@@ -1,16 +1,16 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, onSnapshot, setDoc } from "firebase/firestore";
+import { getFirestore, doc, collection, onSnapshot, setDoc, deleteDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 // User's Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCEm7q6HoCRWu9mhqTewXfhYEe5ungbCWs",
-  authDomain: "safe-drop-a2693.firebaseapp.com",
-  projectId: "safe-drop-a2693",
-  storageBucket: "safe-drop-a2693.firebasestorage.app",
-  messagingSenderId: "869723417230",
-  appId: "1:869723417230:web:8f9d5fe9136fe3e3ec77df",
-  measurementId: "G-ELR6ZH2QBR"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 
@@ -20,54 +20,96 @@ export const firestore = getFirestore(app);
 export const auth = getAuth(app);
 
 const DB_KEY = 'safedrop_tank_cleaners_db';
-const docRef = doc(firestore, "safedrop", "db");
 
 let isWriting = false;
 
-// Synchronize Firebase Firestore to LocalStorage in real-time
+// Synchronize Firebase Firestore collections to LocalStorage in real-time
 export const startFirebaseSync = (defaultDatabase) => {
-  // Setup real-time listener
-  onSnapshot(docRef, async (snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.data();
-      
-      // Update local storage and notify React app only if we're not currently writing
-      // and only if the data actually changed.
-      if (!isWriting) {
-        const firestoreDataStr = JSON.stringify(data);
-        const localDataStr = localStorage.getItem(DB_KEY);
-        if (localDataStr !== firestoreDataStr) {
-          localStorage.setItem(DB_KEY, firestoreDataStr);
-          window.dispatchEvent(new Event('db-update'));
-        }
-      }
-    } else {
-      // If document doesn't exist on Firestore (e.g. fresh database setup),
-      // initialize Firestore with defaultDatabase
-      try {
-        isWriting = true;
-        const defaultDataStr = JSON.stringify(defaultDatabase);
-        await setDoc(docRef, defaultDatabase);
-        localStorage.setItem(DB_KEY, defaultDataStr);
-        window.dispatchEvent(new Event('db-update'));
-      } catch (err) {
-        console.error("Error initializing Firestore document:", err);
-      } finally {
-        isWriting = false;
-      }
+  const collections = ['users', 'customers', 'jobs', 'inventory', 'leads', 'invoices', 'auditLogs'];
+  let localDb = { ...defaultDatabase };
+  
+  // Try to load initial data from local storage
+  const cached = localStorage.getItem(DB_KEY);
+  if (cached) {
+    try {
+      localDb = JSON.parse(cached);
+    } catch (e) {
+      console.error("Error parsing local cache during sync init:", e);
     }
-  }, (error) => {
-    console.error("Firestore sync error:", error);
+  } else {
+    // If no cache, initialize local storage with default database
+    localStorage.setItem(DB_KEY, JSON.stringify(defaultDatabase));
+  }
+  
+  collections.forEach(colName => {
+    onSnapshot(collection(firestore, colName), (snapshot) => {
+      // Skip incoming updates if we are actively writing to Firestore
+      if (isWriting) return;
+      
+      const items = [];
+      snapshot.forEach(docSnap => {
+        items.push(docSnap.data());
+      });
+      
+      const localItems = localDb[colName] || [];
+      
+      // Sort items by ID before comparison to make sure order changes don't trigger updates
+      const sortById = (a, b) => (a.id || '').localeCompare(b.id || '');
+      const incomingStr = JSON.stringify([...items].sort(sortById));
+      const localStr = JSON.stringify([...localItems].sort(sortById));
+      
+      if (incomingStr !== localStr) {
+        // Read fresh database from local storage to merge concurrent updates from other collections
+        const currentDbStr = localStorage.getItem(DB_KEY);
+        let freshDb = currentDbStr ? JSON.parse(currentDbStr) : { ...localDb };
+        
+        freshDb[colName] = items;
+        localDb = freshDb; // Update memory reference
+        
+        localStorage.setItem(DB_KEY, JSON.stringify(freshDb));
+        window.dispatchEvent(new Event('db-update'));
+      }
+    }, (error) => {
+      console.error(`Firestore sync error on collection ${colName}:`, error);
+    });
   });
 };
 
-// Save database changes to Firestore
-export const saveDBToFirebase = async (data) => {
+// Save database changes to Firestore via delta updates
+export const saveDBToFirebase = async (newData, oldData) => {
   try {
     isWriting = true;
-    await setDoc(docRef, data);
+    
+    const collections = ['users', 'customers', 'jobs', 'inventory', 'leads', 'invoices', 'auditLogs'];
+    
+    for (const colName of collections) {
+      const newList = newData[colName] || [];
+      const oldList = oldData ? (oldData[colName] || []) : [];
+      
+      const newMap = new Map(newList.map(item => [item.id, item]));
+      const oldMap = new Map(oldList.map(item => [item.id, item]));
+      
+      // 1. Additions and Modifications
+      for (const item of newList) {
+        if (!item.id) continue;
+        const oldItem = oldMap.get(item.id);
+        
+        // If it's a new item or has different content, write to Firestore
+        if (!oldItem || JSON.stringify(oldItem) !== JSON.stringify(item)) {
+          await setDoc(doc(firestore, colName, item.id), item);
+        }
+      }
+      
+      // 2. Deletions
+      for (const item of oldList) {
+        if (!item.id) continue;
+        if (!newMap.has(item.id)) {
+          await deleteDoc(doc(firestore, colName, item.id));
+        }
+      }
+    }
   } catch (err) {
-    console.error("Error writing database to Firestore:", err);
+    console.error("Error updating collections in Firestore:", err);
   } finally {
     isWriting = false;
   }

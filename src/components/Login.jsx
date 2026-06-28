@@ -43,41 +43,6 @@ export default function Login({ onLoginSuccess }) {
       });
   };
 
-  const handleQuickLogin = (quickEmail, quickPassword) => {
-    setEmail(quickEmail);
-    setPassword(quickPassword);
-    
-    // Submit using state updates in a timeout to let state apply
-    setTimeout(() => {
-      setError('');
-      signInWithEmailAndPassword(auth, quickEmail, quickPassword)
-        .then((userCredential) => {
-          const db = getDB();
-          const user = db.users.find(u => u.email.toLowerCase() === quickEmail.toLowerCase());
-
-          const userSession = user || {
-            id: 'SD-DEMO-USER',
-            email: quickEmail,
-            name: quickEmail.split('@')[0],
-            role: quickEmail.includes('superadmin') || quickEmail.includes('pranith') ? 'super_admin' : 'admin'
-          };
-
-          sessionStorage.setItem('safedrop_user', JSON.stringify(userSession));
-          addAuditLog('Login Success', `User ${userSession.name} (${userSession.email}) logged in via Quick Demo (Firebase Auth).`);
-          onLoginSuccess(userSession);
-        })
-        .catch((err) => {
-          console.error("Quick login Auth error:", err);
-          addAuditLog('Login Failure', `Failed Quick Demo login attempt for email: ${quickEmail}. Error: ${err.message}`);
-
-          if (err.code === 'auth/configuration-not-found' || err.code === 'auth/operation-not-allowed') {
-            setError('Authentication is not enabled in Firebase Console. Please enable Email/Password provider in the console.');
-          } else {
-            setError('Quick login failed. Firebase Auth rejects credentials or is not enabled.');
-          }
-        });
-    }, 50);
-  };
 
   return (
     <div style={{
@@ -208,31 +173,6 @@ export default function Login({ onLoginSuccess }) {
             <LogIn size={18} /> Sign In to SOP Portal
           </button>
         </form>
-
-        {/* Quick Demo Logins Section */}
-        <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
-          <h4 style={{ fontSize: '0.75rem', color: 'var(--text-muted)', letterSpacing: '0.05em', marginBottom: '0.75rem', textAlign: 'center', textTransform: 'uppercase' }}>
-            Quick Demo Login Accounts
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button 
-              onClick={() => handleQuickLogin('pranith@safedrop.com', 'admin123')}
-              className="btn btn-secondary"
-              style={{ fontSize: '0.75rem', padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '2px', height: 'auto' }}
-            >
-              <strong>Pranith (Super Admin)</strong>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Full CRUD Access</span>
-            </button>
-            <button 
-              onClick={() => handleQuickLogin('anurathan@safedrop.com', 'admin123')}
-              className="btn btn-secondary"
-              style={{ fontSize: '0.75rem', padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '2px', height: 'auto' }}
-            >
-              <strong>Anurathan (Admin)</strong>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Operations view & restricted</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

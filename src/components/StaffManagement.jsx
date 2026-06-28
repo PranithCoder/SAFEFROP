@@ -100,13 +100,13 @@ export default function StaffManagement() {
       let authRegisterSuccess = false;
       try {
         const firebaseConfig = {
-          apiKey: "AIzaSyCEm7q6HoCRWu9mhqTewXfhYEe5ungbCWs",
-          authDomain: "safe-drop-a2693.firebaseapp.com",
-          projectId: "safe-drop-a2693",
-          storageBucket: "safe-drop-a2693.firebasestorage.app",
-          messagingSenderId: "869723417230",
-          appId: "1:869723417230:web:8f9d5fe9136fe3e3ec77df",
-          measurementId: "G-ELR6ZH2QBR"
+          apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+          authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+          projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+          storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+          messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+          appId: import.meta.env.VITE_FIREBASE_APP_ID,
+          measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
         };
         const tempApp = initializeApp(firebaseConfig, `TempEnrollApp-${Date.now()}`);
         const tempAuth = getAuth(tempApp);
