@@ -204,7 +204,7 @@ export default function Marketing() {
   return (
     <div>
       {/* Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Marketing &amp; Leads Funnel</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Log free inspections to convert leads, and track hardware shop referral commissions.</p>
@@ -215,7 +215,7 @@ export default function Marketing() {
       </div>
 
       {/* Kanban Board columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem', overflowX: 'auto' }}>
+      <div className="kanban-board" style={{ marginBottom: '2rem' }}>
         {/* Column 1: New Lead */}
         <div className="glass-panel" style={{ padding: '1rem', minHeight: '300px' }}>
           <h4 style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', marginBottom: '10px' }}>
@@ -337,42 +337,44 @@ export default function Marketing() {
         {pendingCommissions.length === 0 ? (
           <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '1rem' }}>No hardware store referrals logged yet.</div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left' }}>
-                <th style={{ padding: '8px' }}>Hardware Shop Partner</th>
-                <th style={{ padding: '8px' }}>Referred Client</th>
-                <th style={{ padding: '8px' }}>Referral Status</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Commission Fee</th>
-                <th style={{ padding: '8px', textAlign: 'center' }}>Payout Log</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pendingCommissions.map(lead => (
-                <tr key={lead.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '10px 8px', fontWeight: 'bold' }}>{lead.hardwareStoreName || 'Local Hardware Partner'}</td>
-                  <td style={{ padding: '10px 8px' }}>{lead.name}</td>
-                  <td style={{ padding: '10px 8px' }}>
-                    <span className="badge badge-success">Converted Job</span>
-                  </td>
-                  <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 'bold', color: 'var(--secondary)' }}>LKR 500</td>
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                    {lead.commissionPaid ? (
-                      <span className="badge badge-success">Paid</span>
-                    ) : (
-                      <button 
-                        onClick={() => handlePayCommission(lead.id)}
-                        className="btn btn-primary"
-                        style={{ padding: '4px 10px', fontSize: '0.75rem' }}
-                      >
-                        Log Payout
-                      </button>
-                    )}
-                  </td>
+          <div className="table-responsive">
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left' }}>
+                  <th style={{ padding: '8px' }}>Hardware Shop Partner</th>
+                  <th style={{ padding: '8px' }}>Referred Client</th>
+                  <th style={{ padding: '8px' }}>Referral Status</th>
+                  <th style={{ padding: '8px', textAlign: 'right' }}>Commission Fee</th>
+                  <th style={{ padding: '8px', textAlign: 'center' }}>Payout Log</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {pendingCommissions.map(lead => (
+                  <tr key={lead.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '10px 8px', fontWeight: 'bold' }}>{lead.hardwareStoreName || 'Local Hardware Partner'}</td>
+                    <td style={{ padding: '10px 8px' }}>{lead.name}</td>
+                    <td style={{ padding: '10px 8px' }}>
+                      <span className="badge badge-success">Converted Job</span>
+                    </td>
+                    <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 'bold', color: 'var(--secondary)' }}>LKR 500</td>
+                    <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                      {lead.commissionPaid ? (
+                        <span className="badge badge-success">Paid</span>
+                      ) : (
+                        <button 
+                          onClick={() => handlePayCommission(lead.id)}
+                          className="btn btn-primary"
+                          style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                        >
+                          Log Payout
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

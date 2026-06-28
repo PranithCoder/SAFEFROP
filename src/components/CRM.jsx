@@ -270,7 +270,7 @@ export default function CRM() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Customer Relationship Management (CRM)</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Manage client profiles, check subscription plans, and dispatch schedules.</p>
@@ -285,7 +285,7 @@ export default function CRM() {
         <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <BookOpen size={18} color="var(--primary)" /> Standard Flat Rate Pricing Matrix
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '0.75rem', fontSize: '0.9rem' }}>
+        <div className="pricing-matrix" style={{ marginTop: '0.75rem', fontSize: '0.9rem' }}>
           <div style={{ padding: '10px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '4px' }}>
             <span style={{ color: 'var(--text-secondary)' }}>500L (Small):</span>
             <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)' }}>LKR 3,500</div>
@@ -342,7 +342,7 @@ export default function CRM() {
       </div>
 
       {/* Customers List grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+      <div className="cards-grid">
         {filteredCustomers.map(customer => (
           <div key={customer.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

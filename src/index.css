@@ -619,3 +619,144 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 0 0 rgba(0, 230, 118, 0);
   }
 }
+
+/* Responsive Grid and Flex Utilities */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .page-header > button,
+  .page-header > div > button,
+  .page-header > a,
+  .page-header > .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1rem;
+  border-radius: var(--radius-sm);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+@media (min-width: 769px) {
+  .tech-grid {
+    grid-template-columns: 1fr 1.5fr;
+  }
+}
+
+.photo-capture-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 480px) {
+  .photo-capture-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pricing-matrix {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 1024px) {
+  .pricing-matrix {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 580px) {
+  .pricing-matrix {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(270px, 1fr));
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.split-layout-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 768px) {
+  .split-layout-2col {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+.split-layout-asymmetric-dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 1024px) {
+  .split-layout-asymmetric-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.split-layout-asymmetric-inventory {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 1024px) {
+  .split-layout-asymmetric-inventory {
+    grid-template-columns: 1fr;
+  }
+}
+
+.split-layout-asymmetric-b2b {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr;
+  gap: 1.5rem;
+}
+@media (max-width: 1024px) {
+  .split-layout-asymmetric-b2b {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Modal and Glass panel responsiveness */
+@media (max-width: 480px) {
+  .glass-panel {
+    padding: 1rem !important;
+  }
+  .modal-content {
+    padding: 1.25rem !important;
+    margin: 0.5rem;
+  }
+}
+

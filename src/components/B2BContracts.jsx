@@ -223,7 +223,7 @@ export default function B2BContracts() {
           </div>
 
           {/* Client Details */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+          <div className="split-layout-2col" style={{ marginBottom: '2rem' }}>
             <div>
               <h4 style={{ fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', marginBottom: '4px' }}>Billed To:</h4>
               <p style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>{activeInvoice.customerName}</p>
@@ -241,26 +241,28 @@ export default function B2BContracts() {
           </div>
 
           {/* Itemized Table */}
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem', fontSize: '0.9rem' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #ddd' }}>
-                <th style={{ textAlign: 'left', padding: '10px' }}>Item Description</th>
-                <th style={{ textAlign: 'right', padding: '10px', width: '150px' }}>Total Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activeInvoice.items.map((item, index) => (
-                <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '12px 10px' }}>{item.description}</td>
-                  <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 'bold' }}>LKR {item.amount.toLocaleString()}</td>
+          <div className="table-responsive">
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #ddd' }}>
+                  <th style={{ textAlign: 'left', padding: '10px' }}>Item Description</th>
+                  <th style={{ textAlign: 'right', padding: '10px', width: '150px' }}>Total Amount</th>
                 </tr>
-              ))}
-              <tr style={{ borderTop: '2px solid #bbb', fontSize: '1.05rem', fontWeight: 'bold' }}>
-                <td style={{ padding: '12px 10px', textAlign: 'right' }}>Grand Total Due:</td>
-                <td style={{ padding: '12px 10px', textAlign: 'right', color: '#0b131e' }}>LKR {activeInvoice.total.toLocaleString()}</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {activeInvoice.items.map((item, index) => (
+                  <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
+                    <td style={{ padding: '12px 10px' }}>{item.description}</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 'bold' }}>LKR {item.amount.toLocaleString()}</td>
+                  </tr>
+                ))}
+                <tr style={{ borderTop: '2px solid #bbb', fontSize: '1.05rem', fontWeight: 'bold' }}>
+                  <td style={{ padding: '12px 10px', textAlign: 'right' }}>Grand Total Due:</td>
+                  <td style={{ padding: '12px 10px', textAlign: 'right', color: '#0b131e' }}>LKR {activeInvoice.total.toLocaleString()}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           {/* Transfer Info */}
           <div style={{ backgroundColor: '#f8fafc', padding: '1.25rem', borderRadius: '6px', fontSize: '0.85rem', color: '#334155', border: '1px solid #e2e8f0', marginBottom: '2rem' }}>
@@ -291,7 +293,7 @@ export default function B2BContracts() {
   return (
     <div>
       {/* Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>B2B &amp; Invoices</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Manage large commercial proposals, quotes, and Net 30 invoicing terms.</p>
@@ -301,7 +303,7 @@ export default function B2BContracts() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '1.5rem' }}>
+      <div className="split-layout-asymmetric-b2b">
         {/* Left column: B2B Proposals */}
         <div className="glass-panel" style={{ padding: '1.5rem', alignSelf: 'start' }}>
           <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -358,59 +360,61 @@ export default function B2BContracts() {
             </div>
           </div>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left' }}>
-                <th style={{ padding: '10px 8px' }}>Invoice ID</th>
-                <th style={{ padding: '10px 8px' }}>Client</th>
-                <th style={{ padding: '10px 8px' }}>Due Date</th>
-                <th style={{ padding: '10px 8px', textAlign: 'right' }}>Total</th>
-                <th style={{ padding: '10px 8px' }}>Status</th>
-                <th style={{ padding: '10px 8px', textAlign: 'center' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredInvoices.map(inv => (
-                <tr key={inv.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background var(--transition-fast)' }}>
-                  <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{inv.id}</td>
-                  <td style={{ padding: '12px 8px' }}>{inv.customerName}</td>
-                  <td style={{ padding: '12px 8px', color: inv.status === 'Sent' && new Date(inv.dueDate) < new Date('2026-06-19') ? 'var(--color-error)' : 'inherit' }}>
-                    {inv.dueDate}
-                  </td>
-                  <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold', color: 'var(--primary)' }}>
-                    LKR {inv.total.toLocaleString()}
-                  </td>
-                  <td style={{ padding: '12px 8px' }}>
-                    <span className={`badge ${inv.status === 'Paid' ? 'badge-success' : 'badge-error'}`}>{inv.status}</span>
-                  </td>
-                  <td style={{ padding: '12px 8px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                    <button 
-                      onClick={() => {
-                        setActiveInvoiceId(inv.id);
-                        setShowInvoicePrint(true);
-                      }}
-                      className="btn btn-secondary"
-                      style={{ padding: '4px 8px', fontSize: '0.75rem' }}
-                    >
-                      <Printer size={12} /> View
-                    </button>
-                    {inv.status === 'Sent' && (
+          <div className="table-responsive">
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left' }}>
+                  <th style={{ padding: '10px 8px' }}>Invoice ID</th>
+                  <th style={{ padding: '10px 8px' }}>Client</th>
+                  <th style={{ padding: '10px 8px' }}>Due Date</th>
+                  <th style={{ padding: '10px 8px', textAlign: 'right' }}>Total</th>
+                  <th style={{ padding: '10px 8px' }}>Status</th>
+                  <th style={{ padding: '10px 8px', textAlign: 'center' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredInvoices.map(inv => (
+                  <tr key={inv.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background var(--transition-fast)' }}>
+                    <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{inv.id}</td>
+                    <td style={{ padding: '12px 8px' }}>{inv.customerName}</td>
+                    <td style={{ padding: '12px 8px', color: inv.status === 'Sent' && new Date(inv.dueDate) < new Date('2026-06-19') ? 'var(--color-error)' : 'inherit' }}>
+                      {inv.dueDate}
+                    </td>
+                    <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold', color: 'var(--primary)' }}>
+                      LKR {inv.total.toLocaleString()}
+                    </td>
+                    <td style={{ padding: '12px 8px' }}>
+                      <span className={`badge ${inv.status === 'Paid' ? 'badge-success' : 'badge-error'}`}>{inv.status}</span>
+                    </td>
+                    <td style={{ padding: '12px 8px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center' }}>
                       <button 
                         onClick={() => {
-                          const method = prompt("Enter payment method (Cash, Bank Transfer, Check):", "Bank Transfer");
-                          if (method) markInvoicePaid(inv.id, method);
+                          setActiveInvoiceId(inv.id);
+                          setShowInvoicePrint(true);
                         }}
-                        className="btn btn-success"
+                        className="btn btn-secondary"
                         style={{ padding: '4px 8px', fontSize: '0.75rem' }}
                       >
-                        <Check size={12} /> Paid
+                        <Printer size={12} /> View
                       </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      {inv.status === 'Sent' && (
+                        <button 
+                          onClick={() => {
+                            const method = prompt("Enter payment method (Cash, Bank Transfer, Check):", "Bank Transfer");
+                            if (method) markInvoicePaid(inv.id, method);
+                          }}
+                          className="btn btn-success"
+                          style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                        >
+                          <Check size={12} /> Paid
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

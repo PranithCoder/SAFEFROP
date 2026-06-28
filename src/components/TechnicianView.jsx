@@ -279,7 +279,7 @@ export default function TechnicianView({ user, onLogout }) {
         </div>
 
         {/* Outer Split layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: myJobs.length > 0 ? '1fr' : '1fr', gap: '1.25rem' }}>
+        <div className="tech-grid">
           
           {/* Active Job Route Queue */}
           <div className="glass-panel" style={{ padding: '1.25rem' }}>
@@ -359,7 +359,7 @@ export default function TechnicianView({ user, onLogout }) {
               </div>
 
               {/* Photo capture section */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1.25rem' }}>
+              <div className="photo-capture-grid" style={{ marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Before Photo</span>
                   {activeJob.beforePhoto ? (

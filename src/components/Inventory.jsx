@@ -109,7 +109,7 @@ export default function Inventory() {
   return (
     <div>
       {/* Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Equipment &amp; Inventory</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Track pressure washers, pumps, crew gear, and consumables.</p>
@@ -119,51 +119,53 @@ export default function Inventory() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem' }}>
+      <div className="split-layout-asymmetric-inventory">
         {/* Equipment Ledger */}
         <div className="glass-panel" style={{ padding: '1.5rem' }}>
           <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Wrench size={18} color="var(--primary)" /> Professional Operations Gear
           </h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left' }}>
-                <th style={{ padding: '8px' }}>Asset / Equipment</th>
-                <th style={{ padding: '8px' }}>Category</th>
-                <th style={{ padding: '8px' }}>Assigned</th>
-                <th style={{ padding: '8px' }}>Status</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Cost (LKR)</th>
-                <th style={{ padding: '8px', textAlign: 'center' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {db.inventory.filter(item => item.category !== 'Consumable').map(item => (
-                <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{item.name}</td>
-                  <td style={{ padding: '12px 8px' }}>{item.category}</td>
-                  <td style={{ padding: '12px 8px' }}>{item.assignedTo}</td>
-                  <td style={{ padding: '12px 8px' }}>
-                    <span className={`badge ${
-                      item.status === 'Available' ? 'badge-success' : 
-                      item.status === 'In Use' ? 'badge-warning' : 'badge-error'
-                    }`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold' }}>LKR {item.cost.toLocaleString()}</td>
-                  <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                    <button 
-                      onClick={() => handleToggleStatus(item.id)}
-                      className="btn btn-secondary"
-                      style={{ padding: '4px 8px', fontSize: '0.7rem' }}
-                    >
-                      Cycle Status
-                    </button>
-                  </td>
+          <div className="table-responsive">
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left' }}>
+                  <th style={{ padding: '8px' }}>Asset / Equipment</th>
+                  <th style={{ padding: '8px' }}>Category</th>
+                  <th style={{ padding: '8px' }}>Assigned</th>
+                  <th style={{ padding: '8px' }}>Status</th>
+                  <th style={{ padding: '8px', textAlign: 'right' }}>Cost (LKR)</th>
+                  <th style={{ padding: '8px', textAlign: 'center' }}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {db.inventory.filter(item => item.category !== 'Consumable').map(item => (
+                  <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{item.name}</td>
+                    <td style={{ padding: '12px 8px' }}>{item.category}</td>
+                    <td style={{ padding: '12px 8px' }}>{item.assignedTo}</td>
+                    <td style={{ padding: '12px 8px' }}>
+                      <span className={`badge ${
+                        item.status === 'Available' ? 'badge-success' : 
+                        item.status === 'In Use' ? 'badge-warning' : 'badge-error'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold' }}>LKR {item.cost.toLocaleString()}</td>
+                    <td style={{ padding: '12px 8px', textAlign: 'center' }}>
+                      <button 
+                        onClick={() => handleToggleStatus(item.id)}
+                        className="btn btn-secondary"
+                        style={{ padding: '4px 8px', fontSize: '0.7rem' }}
+                      >
+                        Cycle Status
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Consumables Inventory */}

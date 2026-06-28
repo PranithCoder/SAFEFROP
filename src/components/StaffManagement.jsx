@@ -186,7 +186,7 @@ export default function StaffManagement() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Staff &amp; Crews</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Enroll new crew members, define roles, and monitor status.</p>
@@ -263,7 +263,7 @@ export default function StaffManagement() {
       </div>
 
       {/* Staff directory grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
+      <div className="cards-grid">
         {filteredUsers.map(user => (
           <div key={user.email} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '12px', borderLeft: `4px solid ${user.status === 'Inactive' ? 'var(--color-error)' : 'var(--primary)'}` }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

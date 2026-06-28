@@ -119,7 +119,7 @@ export default function AuditLogs() {
   return (
     <div style={{ padding: '2rem 1.5rem' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Security &amp; Audit Logs</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Real-time chronological log of administrative and technician actions.</p>

@@ -283,7 +283,7 @@ export default function Operations() {
 
           <div className="report-section">
             <h3 style={{ fontSize: '1.1rem', borderBottom: '2px solid #ddd', paddingBottom: '6px' }}>Executed SOP Steps Checklist</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '10px', fontSize: '0.9rem' }}>
+            <div className="photo-capture-grid" style={{ marginTop: '10px', fontSize: '0.9rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>✓ Closed Inlet &amp; Isolated System</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>✓ Evacuated Sludge via Submersible Pump</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>✓ High-Pressure Blast Walls &amp; Corners</div>
@@ -324,7 +324,7 @@ export default function Operations() {
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '3rem', borderTop: '1px solid #eee', paddingTop: '1.5rem', fontSize: '0.85rem' }}>
+          <div className="photo-capture-grid" style={{ marginTop: '3rem', borderTop: '1px solid #eee', paddingTop: '1.5rem', fontSize: '0.85rem' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ height: '50px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', fontFamily: 'cursive', fontSize: '1.2rem', color: '#3b82f6' }}>
                 {activeJob.crewName.split('-')[1]?.trim() || 'Shan & Arul'}
@@ -351,7 +351,7 @@ export default function Operations() {
   return (
     <div>
       {/* Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>SOP &amp; Operations</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Guide crews through cleaning checklists and manage job queues.</p>
@@ -394,7 +394,7 @@ export default function Operations() {
                   </span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} /> {job.location}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Layers size={12} /> {job.tankSize}L Tank</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Calendar size={12} /> {job.scheduledDate}</span>
@@ -436,7 +436,7 @@ export default function Operations() {
               </div>
 
               {/* Photos capture simulation */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1.5rem' }}>
+              <div className="photo-capture-grid" style={{ marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Before Photo</span>
                   {activeJob.beforePhoto ? (

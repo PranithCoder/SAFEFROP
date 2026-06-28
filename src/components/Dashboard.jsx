@@ -72,7 +72,7 @@ export default function Dashboard({ setActiveTab }) {
   return (
     <div>
       {/* Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Executive Dashboard</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Operational overview of SafeDrop water tank cleaning activities.</p>
@@ -157,7 +157,7 @@ export default function Dashboard({ setActiveTab }) {
       </div>
 
       {/* Charts & Graphs Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+      <div className="split-layout-asymmetric-dashboard" style={{ marginBottom: '2rem' }}>
         {/* Revenue Trend Area Chart */}
         <div className="glass-panel" style={{ padding: '1.5rem', minHeight: '350px' }}>
           <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -236,7 +236,7 @@ export default function Dashboard({ setActiveTab }) {
       </div>
 
       {/* Target Progress & Checklist Tracker */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+      <div className="cards-grid">
         {/* Year 1 Goal Tracker */}
         <div className="glass-panel" style={{ padding: '1.5rem' }}>
           <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -256,7 +256,7 @@ export default function Dashboard({ setActiveTab }) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+          <div className="photo-capture-grid" style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
             <div style={{ textAlign: 'center', borderRight: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Avg CAC</div>
               <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{formatLKR(kpis.cac)}</div>
