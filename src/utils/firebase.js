@@ -78,6 +78,7 @@ export const startFirebaseSync = (defaultDatabase) => {
 
 // Save database changes to Firestore via delta updates
 export const saveDBToFirebase = async (newData, oldData) => {
+  console.log("saveDBToFirebase starting sync...", { newData, oldData });
   try {
     isWriting = true;
     
@@ -97,6 +98,7 @@ export const saveDBToFirebase = async (newData, oldData) => {
         
         // If it's a new item or has different content, write to Firestore
         if (!oldItem || JSON.stringify(oldItem) !== JSON.stringify(item)) {
+          console.log(`[Firestore Write] Collection: ${colName}, Doc ID: ${item.id}`, item);
           await setDoc(doc(firestore, colName, item.id), item);
         }
       }
@@ -105,6 +107,7 @@ export const saveDBToFirebase = async (newData, oldData) => {
       for (const item of oldList) {
         if (!item.id) continue;
         if (!newMap.has(item.id)) {
+          console.log(`[Firestore Delete] Collection: ${colName}, Doc ID: ${item.id}`);
           await deleteDoc(doc(firestore, colName, item.id));
         }
       }
@@ -113,5 +116,6 @@ export const saveDBToFirebase = async (newData, oldData) => {
     console.error("Error updating collections in Firestore:", err);
   } finally {
     isWriting = false;
+    console.log("saveDBToFirebase sync complete.");
   }
 };
