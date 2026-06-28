@@ -4,13 +4,13 @@ import { getAuth } from "firebase/auth";
 
 // User's Firebase Configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "ENV_FILE_NOT_LOADED_RESTART_VITE_SERVER",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "safe-drop-a2693.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "safe-drop-a2693",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "safe-drop-a2693.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "869723417230",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:869723417230:web:8f9d5fe9136fe3e3ec77df",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-ELR6ZH2QBR"
 };
 
 
