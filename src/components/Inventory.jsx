@@ -9,7 +9,7 @@ import {
   ArrowRight,
   TrendingDown
 } from 'lucide-react';
-import { getDB, saveDB } from '../utils/db';
+import { getDB, saveDB, addAuditLog } from '../utils/db';
 
 export default function Inventory() {
   const [db, setDb] = useState(getDB());
@@ -47,6 +47,7 @@ export default function Inventory() {
 
     const updatedInventory = [...db.inventory, itemObj];
     saveDB({ ...db, inventory: updatedInventory });
+    addAuditLog('Inventory Added', `Added item ${itemObj.name} (${itemObj.category}) to assigned location: ${itemObj.assignedTo}`);
     setShowAddItemModal(false);
     setNewItem({
       name: '',
@@ -60,6 +61,8 @@ export default function Inventory() {
   };
 
   const handleToggleStatus = (itemId) => {
+    let affectedItem = '';
+    let nextStatusVal = '';
     const updatedInventory = db.inventory.map(item => {
       if (item.id === itemId) {
         let nextStatus = item.status;
@@ -67,19 +70,26 @@ export default function Inventory() {
         else if (item.status === 'In Use') nextStatus = 'Maintenance';
         else nextStatus = 'Available';
 
+        affectedItem = item.name;
+        nextStatusVal = nextStatus;
         return { ...item, status: nextStatus };
       }
       return item;
     });
     saveDB({ ...db, inventory: updatedInventory });
+    addAuditLog('Inventory Status Changed', `Changed status for ${affectedItem} to ${nextStatusVal}`);
   };
 
   const handleRestockConsumable = (itemId) => {
+    let affectedItem = '';
+    let restockQtyVal = 0;
     const updatedInventory = db.inventory.map(item => {
       if (item.id === itemId) {
         const restockQuantity = item.unit === 'pieces' ? 100 : 5;
         const restockCost = item.name.includes('Sticker') ? 1000 : 500;
         
+        affectedItem = item.name;
+        restockQtyVal = restockQuantity;
         // Add expense to invoices/payouts log (optional)
         return {
           ...item,
@@ -92,6 +102,7 @@ export default function Inventory() {
     });
 
     saveDB({ ...db, inventory: updatedInventory });
+    addAuditLog('Inventory Restocked', `Restocked consumable item: ${affectedItem} (added +${restockQtyVal})`);
     alert("Restock ordered! Quantity increased and logged to equipment costs.");
   };
 

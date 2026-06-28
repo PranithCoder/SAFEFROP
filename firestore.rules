@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Only allow reads and writes to the safedrop/db document
+    // which is the unified database for the SafeDrop SOP application.
+    match /safedrop/db {
+      allow read, write: if true;
+    }
+  }
+}

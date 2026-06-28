@@ -15,10 +15,16 @@ import {
   AlertTriangle,
   Settings
 } from 'lucide-react';
-import { getDB, saveDB, generateStaffID } from '../utils/db';
+import { getDB, saveDB, generateStaffID, addAuditLog } from '../utils/db';
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function StaffManagement() {
   const [db, setDb] = useState(getDB());
+  const [currentUser] = useState(() => {
+    const userStr = sessionStorage.getItem('safedrop_user');
+    return userStr ? JSON.parse(userStr) : null;
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [editingStaffId, setEditingStaffId] = useState(null);
@@ -51,7 +57,7 @@ export default function StaffManagement() {
     }
   }, [showEnrollModal, editingStaffId, db]);
 
-  const handleEnrollStaff = (e) => {
+  const handleEnrollStaff = async (e) => {
     e.preventDefault();
     
     if (editingStaffId) {
@@ -71,6 +77,7 @@ export default function StaffManagement() {
         return u;
       });
       saveDB({ ...db, users: updatedUsers });
+      addAuditLog('Staff Updated', `Updated staff profile for: ${staffForm.name} (${staffForm.email})`);
       alert("Staff profile updated successfully!");
     } else {
       // Registering new staff
@@ -89,8 +96,31 @@ export default function StaffManagement() {
         lng: staffForm.role === 'technician' ? Number((81.2330 + (Math.random() - 0.5) * 0.02).toFixed(4)) : 0
       };
 
+      // Register in Firebase Auth via secondary App helper to preserve current admin login session
+      let authRegisterSuccess = false;
+      try {
+        const firebaseConfig = {
+          apiKey: "AIzaSyCEm7q6HoCRWu9mhqTewXfhYEe5ungbCWs",
+          authDomain: "safe-drop-a2693.firebaseapp.com",
+          projectId: "safe-drop-a2693",
+          storageBucket: "safe-drop-a2693.firebasestorage.app",
+          messagingSenderId: "869723417230",
+          appId: "1:869723417230:web:8f9d5fe9136fe3e3ec77df",
+          measurementId: "G-ELR6ZH2QBR"
+        };
+        const tempApp = initializeApp(firebaseConfig, `TempEnrollApp-${Date.now()}`);
+        const tempAuth = getAuth(tempApp);
+        await createUserWithEmailAndPassword(tempAuth, staffForm.email, staffForm.password);
+        await tempApp.delete();
+        authRegisterSuccess = true;
+      } catch (authErr) {
+        console.error("Error creating Auth user during enrollment:", authErr);
+        alert(`Auth system notice: Created staff in database, but Firebase Auth registration failed: "${authErr.message}" (Ensure Email/Password provider is enabled in Firebase Console)`);
+      }
+
       const updatedUsers = [...db.users, newStaffObj];
       saveDB({ ...db, users: updatedUsers });
+      addAuditLog('Staff Enrolled', `Enrolled new staff member: ${staffForm.name} (${staffForm.email}) as ${staffForm.role}. Auth status: ${authRegisterSuccess ? 'Registered' : 'Skipped/Failed'}`);
       alert(`Staff enrolled successfully with ID: ${newId}`);
     }
 
@@ -112,14 +142,19 @@ export default function StaffManagement() {
   };
 
   const toggleStaffStatus = (userId) => {
+    let affectedUser = '';
+    let nextStatusVal = '';
     const updatedUsers = db.users.map(u => {
       if (u.id === userId) {
         const nextStatus = u.status === 'Inactive' ? 'Active' : 'Inactive';
+        affectedUser = `${u.name} (${u.email})`;
+        nextStatusVal = nextStatus;
         return { ...u, status: nextStatus };
       }
       return u;
     });
     saveDB({ ...db, users: updatedUsers });
+    addAuditLog('Staff Status Changed', `Changed status for ${affectedUser} to ${nextStatusVal}`);
   };
 
   const closeModal = () => {
@@ -156,10 +191,31 @@ export default function StaffManagement() {
           <h2 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Staff &amp; Crews</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Enroll new crew members, define roles, and monitor status.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowEnrollModal(true)}>
-          <UserPlus size={16} /> Enroll New Staff
-        </button>
+        {currentUser?.role === 'super_admin' && (
+          <button className="btn btn-primary" onClick={() => setShowEnrollModal(true)}>
+            <UserPlus size={16} /> Enroll New Staff
+          </button>
+        )}
       </div>
+
+      {/* Admin Notice */}
+      {currentUser?.role !== 'super_admin' && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          padding: '12px 16px',
+          backgroundColor: 'rgba(255, 179, 0, 0.1)',
+          border: '1px solid rgba(255, 179, 0, 0.25)',
+          borderRadius: 'var(--radius-sm)',
+          color: 'var(--color-warning)',
+          fontSize: '0.9rem',
+          marginBottom: '1.5rem'
+        }}>
+          <AlertTriangle size={18} />
+          <span><strong>Notice:</strong> Staff management modifications (enrolling, editing, deactivating accounts) are restricted to Super Admins only.</span>
+        </div>
+      )}
 
       {/* KPI Stats */}
       <div className="dashboard-grid" style={{ marginBottom: '1.5rem' }}>
@@ -235,29 +291,35 @@ export default function StaffManagement() {
               )}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '10px' }}>
-              <button 
-                onClick={() => toggleStaffStatus(user.id)}
-                className={`btn ${user.status === 'Inactive' ? 'btn-secondary' : 'btn-secondary'}`}
-                style={{ 
-                  padding: '4px 10px', 
-                  fontSize: '0.75rem', 
-                  color: user.status === 'Inactive' ? 'var(--color-success)' : 'var(--color-error)',
-                  borderColor: user.status === 'Inactive' ? 'rgba(0,230,118,0.15)' : 'rgba(255,23,68,0.15)'
-                }}
-              >
-                {user.status === 'Inactive' ? <Check size={12} /> : <X size={12} />}
-                {user.status === 'Inactive' ? 'Set Active' : 'Deactivate'}
-              </button>
+            {currentUser?.role === 'super_admin' ? (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '10px' }}>
+                <button 
+                  onClick={() => toggleStaffStatus(user.id)}
+                  className={`btn ${user.status === 'Inactive' ? 'btn-secondary' : 'btn-secondary'}`}
+                  style={{ 
+                    padding: '4px 10px', 
+                    fontSize: '0.75rem', 
+                    color: user.status === 'Inactive' ? 'var(--color-success)' : 'var(--color-error)',
+                    borderColor: user.status === 'Inactive' ? 'rgba(0,230,118,0.15)' : 'rgba(255,23,68,0.15)'
+                  }}
+                >
+                  {user.status === 'Inactive' ? <Check size={12} /> : <X size={12} />}
+                  {user.status === 'Inactive' ? 'Set Active' : 'Deactivate'}
+                </button>
 
-              <button 
-                className="btn btn-secondary" 
-                style={{ padding: '4px 10px', fontSize: '0.75rem', gap: '4px' }}
-                onClick={() => startEdit(user)}
-              >
-                <Edit2 size={12} /> Edit Profile
-              </button>
-            </div>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ padding: '4px 10px', fontSize: '0.75rem', gap: '4px' }}
+                  onClick={() => startEdit(user)}
+                >
+                  <Edit2 size={12} /> Edit Profile
+                </button>
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', borderTop: '1px solid var(--border-color)', paddingTop: '10px', textAlign: 'center', fontStyle: 'italic' }}>
+                View Only (Super Admin action required to edit)
+              </div>
+            )}
           </div>
         ))}
       </div>

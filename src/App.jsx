@@ -7,6 +7,7 @@ import B2BContracts from './components/B2BContracts';
 import Marketing from './components/Marketing';
 import Inventory from './components/Inventory';
 import StaffManagement from './components/StaffManagement';
+import AuditLogs from './components/AuditLogs';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -27,6 +28,8 @@ function App() {
         return <Marketing />;
       case 'inventory':
         return <Inventory />;
+      case 'audit':
+        return <AuditLogs />;
       default:
         return <Dashboard setActiveTab={setActiveTab} />;
     }

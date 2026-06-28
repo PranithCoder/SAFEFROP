@@ -15,7 +15,7 @@ import {
   TrendingUp,
   FileCheck
 } from 'lucide-react';
-import { getDB, saveDB } from '../utils/db';
+import { getDB, saveDB, addAuditLog } from '../utils/db';
 
 export default function Operations() {
   const [db, setDb] = useState(getDB());
@@ -59,6 +59,7 @@ export default function Operations() {
 
   // Toggle SOP checklist items
   const handleToggleStep = (jobId, stepKey) => {
+    let actionLog = '';
     const updatedJobs = db.jobs.map(j => {
       if (j.id === jobId) {
         const nextSteps = { ...j.sopSteps, [stepKey]: !j.sopSteps[stepKey] };
@@ -78,12 +79,14 @@ export default function Operations() {
           
           // Execute VIP/AMC customer counter decrements or updates
           handleCustomerPlanUpdate(j.customerId, j.price, j.stickerSerial);
+          actionLog = `Job #${jobId} for ${j.customerName} completed (SOP fully validated).`;
         } else {
           // If status was completed but user unchecked a step
           if (nextStatus === 'Completed') {
             nextStatus = 'In Progress';
             completedDate = '';
           }
+          actionLog = `Job #${jobId} (${j.customerName}): Toggled SOP step '${stepKey}' to ${nextSteps[stepKey] ? 'Checked' : 'Unchecked'}.`;
         }
 
         return { ...j, sopSteps: nextSteps, status: nextStatus, completedDate };
@@ -91,6 +94,9 @@ export default function Operations() {
       return j;
     });
     updateJobsList(updatedJobs);
+    if (actionLog) {
+      addAuditLog('Job SOP Updated', actionLog);
+    }
   };
 
   // Perform updates to customers & billing when job completes
@@ -219,6 +225,7 @@ export default function Operations() {
 
     const updatedJobs = [...db.jobs, newJobObj];
     updateJobsList(updatedJobs);
+    addAuditLog('Job Scheduled', `Scheduled new job ticket #${newJobObj.id} for customer ${newJobObj.customerName} on ${newJobObj.scheduledDate}`);
     setShowAddJobModal(false);
     setNewJob({
       customerId: '',

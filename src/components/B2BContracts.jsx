@@ -12,7 +12,7 @@ import {
   Building,
   UserCheck
 } from 'lucide-react';
-import { getDB, saveDB } from '../utils/db';
+import { getDB, saveDB, addAuditLog } from '../utils/db';
 
 export default function B2BContracts() {
   const [db, setDb] = useState(getDB());
@@ -47,6 +47,7 @@ export default function B2BContracts() {
 
   // Invoice calculations
   const markInvoicePaid = (invId, method) => {
+    const targetInvoice = db.invoices.find(inv => inv.id === invId);
     const updatedInvoices = db.invoices.map(inv => {
       if (inv.id === invId) {
         return {
@@ -60,6 +61,7 @@ export default function B2BContracts() {
     });
 
     saveDB({ ...db, invoices: updatedInvoices });
+    addAuditLog('Invoice Paid', `Invoice #${invId} for ${targetInvoice ? targetInvoice.customerName : 'N/A'} of LKR ${targetInvoice ? targetInvoice.total.toLocaleString() : 0} marked as Paid via ${method}`);
     alert(`Invoice ${invId} marked as PAID via ${method}.`);
   };
 
@@ -90,6 +92,7 @@ export default function B2BContracts() {
     };
 
     setProposals([newProp, ...proposals]);
+    addAuditLog('Proposal Calculated', `Calculated commercial proposal for ${newProp.client} - Price: LKR ${totalPrice.toLocaleString()}`);
     setShowBidCalculator(false);
     
     // Clear form
@@ -182,6 +185,7 @@ export default function B2BContracts() {
     const updatedJobs = [...db.jobs, newJobObj];
     const updatedInvoices = [...db.invoices, newInvoice];
     saveDB({ ...db, jobs: updatedJobs, invoices: updatedInvoices });
+    addAuditLog('Proposal Approved', `Approved commercial proposal for ${prop.client} (Job: #${newJobObj.id}, Invoice: #${invId}, Value: LKR ${prop.price.toLocaleString()})`);
 
     // Update local proposal state
     setProposals(proposals.map(p => p.id === propId ? { ...p, status: 'Approved' } : p));

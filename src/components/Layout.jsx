@@ -12,7 +12,8 @@ import {
   AlertTriangle,
   Clock,
   LogOut,
-  UserCheck
+  UserCheck,
+  ShieldAlert
 } from 'lucide-react';
 import { getDB, getKPIs } from '../utils/db';
 import Login from './Login';
@@ -152,6 +153,7 @@ export default function Layout({ children, activeTab, setActiveTab }) {
     { id: 'b2b', label: 'B2B & Invoices', icon: FileText },
     { id: 'marketing', label: 'Marketing & Leads', icon: TrendingUp },
     { id: 'inventory', label: 'Equipment & Stock', icon: Wrench },
+    { id: 'audit', label: 'Audit Logs', icon: ShieldAlert },
   ];
 
   // 1. If not logged in, render the Login Screen

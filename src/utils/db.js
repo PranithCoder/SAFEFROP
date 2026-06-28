@@ -7,16 +7,15 @@ const DB_KEY = 'safedrop_tank_cleaners_db';
 
 export const defaultDatabase = {
   users: [
-    { id: 'SD-STAFF-2001', email: 'superadmin@safedrop.com', password: 'admin123', name: 'Super Admin', role: 'super_admin' },
-    { id: 'SD-STAFF-2002', email: 'admin@safedrop.com', password: 'admin123', name: 'Operations Admin', role: 'admin' },
-    { id: 'SD-STAFF-2003', email: 'tech1@safedrop.com', password: 'tech123', name: 'Shan & Arul', role: 'technician', crewName: 'Crew A - Shan & Arul', lat: 8.5670, lng: 81.2330, status: 'Active' },
-    { id: 'SD-STAFF-2004', email: 'tech2@safedrop.com', password: 'tech123', name: 'Ravi & Niro', role: 'technician', crewName: 'Crew B - Ravi & Niro', lat: 8.5790, lng: 81.2180, status: 'Active' }
+    { id: 'SD-STAFF-2001', email: 'pranith@safedrop.com', password: 'admin123', name: 'Pranith', role: 'super_admin' },
+    { id: 'SD-STAFF-2002', email: 'anurathan@safedrop.com', password: 'admin123', name: 'Anurathan', role: 'admin' }
   ],
   customers: [],
   jobs: [],
   inventory: [],
   leads: [],
-  invoices: []
+  invoices: [],
+  auditLogs: []
 };
 
 export const generateCustomerID = (db) => {
@@ -195,4 +194,31 @@ export const getKPIs = (db) => {
     clv: Math.round(clv),
     initialEquipmentCost
   };
+};
+
+export const addAuditLog = (action, details) => {
+  try {
+    const db = getDB();
+    const userStr = sessionStorage.getItem('safedrop_user');
+    const user = userStr ? JSON.parse(userStr) : { name: 'System / Guest', email: 'guest@safedrop.com', role: 'guest' };
+    
+    const newLog = {
+      id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date().toISOString(),
+      userEmail: user.email || 'guest@safedrop.com',
+      userName: user.name || 'System',
+      userRole: user.role || 'guest',
+      action,
+      details
+    };
+    
+    if (!db.auditLogs) {
+      db.auditLogs = [];
+    }
+    
+    db.auditLogs.unshift(newLog); // Put new logs at the beginning
+    saveDB(db);
+  } catch (err) {
+    console.error("Error adding audit log:", err);
+  }
 };

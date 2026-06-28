@@ -1,29 +1,29 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAB9sOKfFRIhx2E0YTK08PN-umDqGebbu0",
-  authDomain: "jb-group-6af90.firebaseapp.com",
-  projectId: "jb-group-6af90",
-  storageBucket: "jb-group-6af90.firebasestorage.app",
-  messagingSenderId: "753677921479",
-  appId: "1:753677921479:web:dce97fbc885687d8a4a2e2",
-  measurementId: "G-MJ2WQQMPT5"
+  apiKey: "AIzaSyCEm7q6HoCRWu9mhqTewXfhYEe5ungbCWs",
+  authDomain: "safe-drop-a2693.firebaseapp.com",
+  projectId: "safe-drop-a2693",
+  storageBucket: "safe-drop-a2693.firebasestorage.app",
+  messagingSenderId: "869723417230",
+  appId: "1:869723417230:web:8f9d5fe9136fe3e3ec77df",
+  measurementId: "G-ELR6ZH2QBR"
 };
 
 
 const defaultDatabase = {
   users: [
-    { id: 'SD-STAFF-2001', email: 'superadmin@safedrop.com', password: 'admin123', name: 'Super Admin', role: 'super_admin' },
-    { id: 'SD-STAFF-2002', email: 'admin@safedrop.com', password: 'admin123', name: 'Operations Admin', role: 'admin' },
-    { id: 'SD-STAFF-2003', email: 'tech1@safedrop.com', password: 'tech123', name: 'Shan & Arul', role: 'technician', crewName: 'Crew A - Shan & Arul', lat: 8.5670, lng: 81.2330, status: 'Active' },
-    { id: 'SD-STAFF-2004', email: 'tech2@safedrop.com', password: 'tech123', name: 'Ravi & Niro', role: 'technician', crewName: 'Crew B - Ravi & Niro', lat: 8.5790, lng: 81.2180, status: 'Active' }
+    { id: 'SD-STAFF-2001', email: 'pranith@safedrop.com', password: 'admin123', name: 'Pranith', role: 'super_admin' },
+    { id: 'SD-STAFF-2002', email: 'anurathan@safedrop.com', password: 'admin123', name: 'Anurathan', role: 'admin' }
   ],
   customers: [],
   jobs: [],
   inventory: [],
   leads: [],
-  invoices: []
+  invoices: [],
+  auditLogs: []
 };
 
 console.log("Connecting to Firebase...");
@@ -33,18 +33,29 @@ const docRef = doc(firestore, "safedrop", "db");
 
 async function seed() {
   try {
-    console.log("Checking Firestore database connection...");
-    const snapshot = await getDoc(docRef);
-    if (snapshot.exists()) {
-      console.log("Database connection successful! Current Firestore data:");
-      console.log(JSON.stringify(snapshot.data(), null, 2));
-    } else {
-      console.log("Connected successfully. No document found. Seeding fresh database...");
-      await setDoc(docRef, defaultDatabase);
-      console.log("Fresh database successfully seeded in Firestore!");
+    console.log("Seeding fresh database with clean admin users in Firestore...");
+    await setDoc(docRef, defaultDatabase);
+    console.log("Database successfully seeded in Firestore!");
+
+    // Seed Auth profiles
+    console.log("Seeding Authentication profiles...");
+    const auth = getAuth(app);
+    for (const user of defaultDatabase.users) {
+      try {
+        console.log(`Creating Auth profile for ${user.email}...`);
+        await createUserWithEmailAndPassword(auth, user.email, user.password);
+        console.log(`Auth profile created successfully for ${user.email}.`);
+      } catch (err) {
+        if (err.code === 'auth/email-already-in-use') {
+          console.log(`Auth profile for ${user.email} already exists. Skipping.`);
+        } else {
+          console.error(`Failed to create Auth profile for ${user.email}:`, err.message);
+        }
+      }
     }
+
   } catch (error) {
-    console.error("Error connecting or writing to Firestore database:", error);
+    console.error("Error connecting or writing to Firebase database:", error);
   } finally {
     process.exit(0);
   }

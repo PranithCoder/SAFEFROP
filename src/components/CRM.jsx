@@ -11,7 +11,7 @@ import {
   Search,
   BookOpen
 } from 'lucide-react';
-import { getDB, saveDB, generateCustomerID } from '../utils/db';
+import { getDB, saveDB, generateCustomerID, addAuditLog } from '../utils/db';
 
 export default function CRM() {
   const [db, setDb] = useState(getDB());
@@ -149,6 +149,7 @@ export default function CRM() {
       invoices: updatedInvoices,
       jobs: updatedJobs
     });
+    addAuditLog('Customer Added', `Added customer ${newCustomerObj.name} with plan: ${newCustomerObj.plan}`);
     
     setShowAddCustomerModal(false);
     setNewCust({
@@ -207,6 +208,7 @@ export default function CRM() {
 
     const updatedJobs = [...db.jobs, newJobObj];
     saveDB({ ...db, jobs: updatedJobs });
+    addAuditLog('Job Scheduled', `Scheduled cleaning service for ${selectedCustomerForSchedule.name} on ${scheduleForm.scheduledDate}`);
     alert(`Service scheduled for ${selectedCustomerForSchedule.name} on ${scheduleForm.scheduledDate}!`);
     setShowScheduleModal(false);
     setSelectedCustomerForSchedule(null);
@@ -253,6 +255,7 @@ export default function CRM() {
 
     const updatedJobs = [...db.jobs, newJobObj];
     saveDB({ ...db, jobs: updatedJobs });
+    addAuditLog('Job Scheduled', `Booked VIP cleaning service for customer: ${customer.name}`);
     alert(`VIP clean scheduled for tomorrow! You can track this in the SOP tab.`);
   };
 

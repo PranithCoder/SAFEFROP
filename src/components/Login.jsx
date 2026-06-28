@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { LogIn, AlertCircle } from 'lucide-react';
-import { getDB } from '../utils/db';
+import { getDB, addAuditLog } from '../utils/db';
+import { auth } from '../utils/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -11,31 +13,69 @@ export default function Login({ onLoginSuccess }) {
     if (e) e.preventDefault();
     setError('');
 
-    const db = getDB();
-    const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const db = getDB();
+        const loggedEmail = userCredential.user.email;
+        const user = db.users.find(u => u.email.toLowerCase() === loggedEmail.toLowerCase());
 
-    if (user) {
-      // Store user details in sessionStorage (simple, secure session tracking)
-      sessionStorage.setItem('safedrop_user', JSON.stringify(user));
-      onLoginSuccess(user);
-    } else {
-      setError('Invalid email address or password. Please try again.');
-    }
+        // Map Auth user to DB role metadata
+        const userSession = user || {
+          id: `SD-AUTH-${userCredential.user.uid.slice(0, 6)}`,
+          email: loggedEmail,
+          name: loggedEmail.split('@')[0],
+          role: loggedEmail.includes('superadmin') || loggedEmail.includes('pranith') ? 'super_admin' : 'admin'
+        };
+
+        sessionStorage.setItem('safedrop_user', JSON.stringify(userSession));
+        addAuditLog('Login Success', `User ${userSession.name} (${userSession.email}) successfully logged in via Firebase Auth.`);
+        onLoginSuccess(userSession);
+      })
+      .catch((err) => {
+        console.error("Auth error:", err);
+        addAuditLog('Login Failure', `Failed login attempt for email: ${email}. Error: ${err.message}`);
+
+        if (err.code === 'auth/configuration-not-found' || err.code === 'auth/operation-not-allowed') {
+          setError('Authentication is not enabled in Firebase Console. Please enable Email/Password provider in the console.');
+        } else {
+          setError('Invalid email address or password. Please try again.');
+        }
+      });
   };
 
   const handleQuickLogin = (quickEmail, quickPassword) => {
     setEmail(quickEmail);
     setPassword(quickPassword);
+    
     // Submit using state updates in a timeout to let state apply
     setTimeout(() => {
-      const db = getDB();
-      const user = db.users.find(u => u.email.toLowerCase() === quickEmail.toLowerCase() && u.password === quickPassword);
-      if (user) {
-        sessionStorage.setItem('safedrop_user', JSON.stringify(user));
-        onLoginSuccess(user);
-      } else {
-        setError('Error during quick login.');
-      }
+      setError('');
+      signInWithEmailAndPassword(auth, quickEmail, quickPassword)
+        .then((userCredential) => {
+          const db = getDB();
+          const user = db.users.find(u => u.email.toLowerCase() === quickEmail.toLowerCase());
+
+          const userSession = user || {
+            id: 'SD-DEMO-USER',
+            email: quickEmail,
+            name: quickEmail.split('@')[0],
+            role: quickEmail.includes('superadmin') || quickEmail.includes('pranith') ? 'super_admin' : 'admin'
+          };
+
+          sessionStorage.setItem('safedrop_user', JSON.stringify(userSession));
+          addAuditLog('Login Success', `User ${userSession.name} (${userSession.email}) logged in via Quick Demo (Firebase Auth).`);
+          onLoginSuccess(userSession);
+        })
+        .catch((err) => {
+          console.error("Quick login Auth error:", err);
+          addAuditLog('Login Failure', `Failed Quick Demo login attempt for email: ${quickEmail}. Error: ${err.message}`);
+
+          if (err.code === 'auth/configuration-not-found' || err.code === 'auth/operation-not-allowed') {
+            setError('Authentication is not enabled in Firebase Console. Please enable Email/Password provider in the console.');
+          } else {
+            setError('Quick login failed. Firebase Auth rejects credentials or is not enabled.');
+          }
+        });
     }, 50);
   };
 
@@ -176,28 +216,20 @@ export default function Login({ onLoginSuccess }) {
           </h4>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <button 
-              onClick={() => handleQuickLogin('superadmin@safedrop.com', 'admin123')}
+              onClick={() => handleQuickLogin('pranith@safedrop.com', 'admin123')}
               className="btn btn-secondary"
               style={{ fontSize: '0.75rem', padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '2px', height: 'auto' }}
             >
-              <strong>Super Admin</strong>
+              <strong>Pranith (Super Admin)</strong>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Full CRUD Access</span>
             </button>
             <button 
-              onClick={() => handleQuickLogin('admin@safedrop.com', 'admin123')}
+              onClick={() => handleQuickLogin('anurathan@safedrop.com', 'admin123')}
               className="btn btn-secondary"
               style={{ fontSize: '0.75rem', padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '2px', height: 'auto' }}
             >
-              <strong>Operations Admin</strong>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Manage/Read Only</span>
-            </button>
-            <button 
-              onClick={() => handleQuickLogin('tech1@safedrop.com', 'tech123')}
-              className="btn btn-secondary"
-              style={{ fontSize: '0.75rem', padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '2px', height: 'auto', gridColumn: 'span 2' }}
-            >
-              <strong>Shan &amp; Arul (Crew A)</strong>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Service Technician SOP view</span>
+              <strong>Anurathan (Admin)</strong>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Operations view & restricted</span>
             </button>
           </div>
         </div>
