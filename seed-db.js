@@ -69,7 +69,11 @@ async function seed() {
       console.log(`Seeding collection: ${colName}...`);
       const list = defaultDatabase[colName] || [];
       for (const item of list) {
-        await setDoc(doc(firestore, colName, item.id), item);
+        const itemToWrite = { ...item };
+        if (colName === 'users') {
+          delete itemToWrite.password;
+        }
+        await setDoc(doc(firestore, colName, item.id), itemToWrite);
       }
     }
     console.log("Database successfully seeded in Firestore!");

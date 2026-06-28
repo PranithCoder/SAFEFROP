@@ -64,15 +64,16 @@ export default function StaffManagement() {
       // Editing existing staff
       const updatedUsers = db.users.map(u => {
         if (u.id === editingStaffId) {
-          return {
+          const updatedUser = {
             ...u,
             name: staffForm.name,
             email: staffForm.email,
-            password: staffForm.password || u.password, // Keep old password if blank
             role: staffForm.role,
             crewName: staffForm.role === 'technician' ? staffForm.crewName : '',
             status: staffForm.status
           };
+          delete updatedUser.password;
+          return updatedUser;
         }
         return u;
       });
@@ -87,7 +88,6 @@ export default function StaffManagement() {
         id: newId,
         name: staffForm.name,
         email: staffForm.email,
-        password: staffForm.password,
         role: staffForm.role,
         crewName: staffForm.role === 'technician' ? staffForm.crewName : '',
         status: staffForm.status,

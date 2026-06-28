@@ -7,8 +7,8 @@ const DB_KEY = 'safedrop_tank_cleaners_db';
 
 export const defaultDatabase = {
   users: [
-    { id: 'SD-STAFF-2001', email: 'pranith@safedrop.com', password: 'admin123', name: 'Pranith', role: 'super_admin' },
-    { id: 'SD-STAFF-2002', email: 'anurathan@safedrop.com', password: 'admin123', name: 'Anurathan', role: 'admin' }
+    { id: 'SD-STAFF-2001', email: 'pranith@safedrop.com', name: 'Pranith', role: 'super_admin' },
+    { id: 'SD-STAFF-2002', email: 'anurathan@safedrop.com', name: 'Anurathan', role: 'admin' }
   ],
   customers: [],
   jobs: [],
